@@ -3,6 +3,10 @@ package com.mysite.xbb.answer;
 import com.mysite.xbb.question.Question;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
+import com.mysite.xbb.DataNotFoundException;
+
+import com.mysite.xbb.user.SiteUser;
 
 import java.time.LocalDateTime;
 
@@ -12,12 +16,32 @@ public class AnswerService {
 	
 	private final AnswerRepository answerRepository;
 	
-	public void create(Question question, String content) {
+	public void create(Question question, String content, SiteUser author) {
 		Answer answer = new Answer();
 		answer.setContent(content);
 		answer.setCreateDate(LocalDateTime.now());
 		answer.setQuestion(question);
+		answer.setAuthor(author);
+		this.answerRepository.save(answer);
+	}
+	
+	public Answer getAnswer(Integer id) {
+		Optional<Answer> answer = this.answerRepository.findById(id);
+		
+		if(answer.isPresent()) {
+			return answer.get();
+		}
+		
+		throw new DataNotFoundException("anwser not found");
+	}
+	
+	public void modify(Answer answer, String content) {
+		answer.setContent(content);
+		answer.setModifyDate(LocalDateTime.now());
 		this.answerRepository.save(answer);
 	}
 
+	public void delete(Answer answer) {
+		this.answerRepository.delete(answer);
+	}
 }
